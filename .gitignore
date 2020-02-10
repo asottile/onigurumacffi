@@ -1,0 +1,10 @@
+*.c
+*.egg-info
+*.o
+*.pyc
+*.so
+/.coverage
+/.mypy_cache
+/.tox
+/build
+/dist
