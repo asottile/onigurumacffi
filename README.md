@@ -32,7 +32,7 @@ which is searched from
 
 return the string of the matched group, defaults to 0 (the whole match)
 
-### `_Match[n: int] -> str`
+#### `_Match[n: int] -> str`
 
 a shorthand alias for `_Match.group(...)`
 
