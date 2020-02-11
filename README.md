@@ -28,6 +28,11 @@ make a compiled pattern
 match a string using the pattern.  optionally set `start` to adjust the offset
 which is searched from
 
+#### `_Pattern.search(s: str, start: int = 0) -> Optional[_Match]`
+
+search a string using the pattern.  optionally set `start` to adjust the offset
+which is searched from
+
 #### `_Match.group(n: int = 0) -> str`
 
 return the string of the matched group, defaults to 0 (the whole match)
