@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import shutil
+import subprocess
+
+IMG = 'onigurumacffi-build'
+DOCKERFILE = f'''\
+FROM quay.io/pypa/manylinux1_x86_64:latest
+RUN : \
+    && git clone https://github.com/kkos/oniguruma --branch v6.9.4 --depth 1 \
+    && cd oniguruma \
+    && ./autogen.sh \
+    && ./configure \
+    && make -j4 install \
+    && cd .. \
+    && rm -rf oniguruma
+'''
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('version')
+    args = parser.parse_args()
+
+    pkg = f'onigurumacffi=={args.version}'
+
+    shutil.rmtree('dist', ignore_errors=True)
+    os.makedirs('dist', exist_ok=True)
+
+    cmd = ('docker', 'build', '-t', IMG, '-')
+    subprocess.run(cmd, input=DOCKERFILE.encode(), check=True)
+
+    PROG = f'''\
+/opt/python/cp36-cp36m/bin/pip wheel --wheel-dir /work --no-deps {pkg} &&
+auditwheel repair --wheel-dir /dist /work/*.whl &&
+ls /dist/*.whl
+unzip -l /dist/*.whl
+'''
+
+    return subprocess.call((
+        'docker', 'run',
+        '--volume', f'{os.path.abspath("dist")}:/dist:rw',
+        '--rm', '-ti', IMG, 'bash', '-euxc', PROG,
+    ))
+
+
+if __name__ == '__main__':
+    exit(main())
