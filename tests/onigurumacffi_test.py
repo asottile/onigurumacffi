@@ -85,6 +85,25 @@ def test_re_compile_unicode_escape():
     assert pattern.match('"☃☃☃☃"')
 
 
+def test_search():
+    match = ABC_RE.search('zzzaaaBccczzz')
+    assert match is not None
+    assert match.group() == 'aaaBccc'
+    assert match.start() == 3
+
+
+def test_search_start():
+    match = ABC_RE.search('zzzaaaBccczzz', start=4)
+    assert match is not None
+    assert match.group() == 'aaBccc'
+    assert match.start() == 4
+
+
+def test_search_no_match():
+    match = ABC_RE.search('zzz')
+    assert match is None
+
+
 def test_expand():
     match = ABC_RE.match('aaaBccccddd')
     assert match is not None

@@ -73,6 +73,14 @@ int onig_match(
     OnigOptionType option
 );
 
+int onig_search(
+    regex_t* reg,
+    const OnigUChar* str, const OnigUChar* end,
+    const OnigUChar* start, const OnigUChar* range,
+    OnigRegion* region,
+    OnigOptionType option
+);
+
 const char* onig_version(void);
 '''
 SRC = '#include <oniguruma.h>'

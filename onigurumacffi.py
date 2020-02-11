@@ -71,20 +71,16 @@ class _Pattern:
     def __repr__(self) -> str:
         return f'{__name__}.compile({self._pattern!r})'
 
-    def match(self, s: str, start: int = 0) -> Optional[_Match]:
+    @staticmethod
+    def _params(s: str, start: int) -> Tuple[bytes, int, Any, Any]:
         s_b = s.encode()
         start_b = len(s[:start].encode())
-
         s_buf = _ffi.new('OnigUChar[]', s_b)
         region = _ffi.gc(_lib.onig_region_new(), _region_free)
+        return s_b, start_b, s_buf, region
 
-        ret = _lib.onig_match(
-            self._regex_t,
-            s_buf, s_buf + len(s_b),
-            s_buf + start_b,
-            region,
-            _lib.ONIG_OPTION_NONE,
-        )
+    @staticmethod
+    def _match_ret(ret: int, s_b: bytes, region: Any) -> Optional[_Match]:
         if ret == _lib.ONIG_MISMATCH:
             return None
         else:
@@ -93,6 +89,32 @@ class _Pattern:
         begs = tuple(region[0].beg[i] for i in range(region[0].num_regs))
         ends = tuple(region[0].end[i] for i in range(region[0].num_regs))
         return _Match(s_b, begs, ends)
+
+    def match(self, s: str, start: int = 0) -> Optional[_Match]:
+        s_b, start_b, s_buf, region = self._params(s, start)
+
+        ret = _lib.onig_match(
+            self._regex_t,
+            s_buf, s_buf + len(s_b),
+            s_buf + start_b,
+            region,
+            _lib.ONIG_OPTION_NONE,
+        )
+
+        return self._match_ret(ret, s_b, region)
+
+    def search(self, s: str, start: int = 0) -> Optional[_Match]:
+        s_b, start_b, s_buf, region = self._params(s, start)
+
+        ret = _lib.onig_search(
+            self._regex_t,
+            s_buf, s_buf + len(s_b),
+            s_buf + start_b, s_buf + len(s_b),
+            region,
+            _lib.ONIG_OPTION_NONE,
+        )
+
+        return self._match_ret(ret, s_b, region)
 
 
 def compile(pattern: str) -> _Pattern:
