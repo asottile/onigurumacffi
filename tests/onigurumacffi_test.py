@@ -5,6 +5,7 @@ import onigurumacffi
 FOO_RE = onigurumacffi.compile('^foo')
 ABC_RE = onigurumacffi.compile('(a+)B+(c+)')
 UNICODE_RE = onigurumacffi.compile('.*?(🙃+)')
+REGSET = onigurumacffi.compile_regset('a+', 'b+', 'c+')
 
 
 def test_region_free():
@@ -33,6 +34,12 @@ def test_match_success():
     assert FOO_RE.match('food') is not None
 
 
+def test_match_repr():
+    match = FOO_RE.match('food')
+    assert match is not None
+    assert repr(match) == "<onigurumacffi._Match span=(0, 3) match='foo'>"
+
+
 def test_match_groups():
     match = ABC_RE.match('aaaaaBBBBBcccDDD')
     assert match is not None
@@ -46,15 +53,18 @@ def test_match_groups():
         match[3]
 
 
-def test_match_starts_ends():
+def test_match_starts_ends_spans():
     match = ABC_RE.match('aaaBBBcccddd')
     assert match is not None
     assert match.start() == 0
     assert match.end() == 9
+    assert match.span() == (0, 9)
     assert match.start(1) == 0
     assert match.end(1) == 3
+    assert match.span(1) == (0, 3)
     assert match.start(2) == 6
     assert match.end(2) == 9
+    assert match.span(2) == (6, 9)
 
 
 def test_match_start():
@@ -109,3 +119,29 @@ def test_expand():
     assert match is not None
     assert match.expand(r'foo\1\1\1') == 'fooaaaaaaaaa'
     assert match.expand(r'foo\2\1') == 'fooccccaaa'
+
+
+def test_regset_repr():
+    ret = repr(onigurumacffi.compile_regset('abc', 'def'))
+    assert ret == "onigurumacffi.compile_regset('abc', 'def')"
+
+
+def test_regset_search_not_matching():
+    idx, match = REGSET.search('zzzq')
+    assert idx == -1
+    assert match is None
+
+
+def test_regset_search_matches_first_match():
+    idx, match = REGSET.search('zzzabc')
+    assert idx == 0
+    assert match is not None
+    assert match.group() == 'a'
+
+
+def test_regset_returns_first_regex_when_equal():
+    regset = onigurumacffi.compile_regset('a', '[^z]')
+    idx, match = regset.search('zzza')
+    assert idx == 0
+    assert match is not None
+    assert match.group() == 'a'

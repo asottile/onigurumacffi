@@ -18,8 +18,22 @@ jobs:
   parameters:
     toxenvs: [pypy3, py36, py37, py38]
     os: linux
+    additional_variables:
+      ONIGURUMA_VERSION: v6.9.4
+      ONIGURUMA_CLONE: $(Pipeline.Workspace)/oniguruma
     pre_test:
+    - task: Cache@2
+      inputs:
+        key: oniguruma | "$(ONIGURUMA_VERSION)"
+        path: $(ONIGURUMA_CLONE)
+        cacheHitVar: ONIGURUMA_CACHE
     - script: |
-        sudo apt-get update
-        sudo apt-get install libonig-dev
-      displayName: install oniguruma dependencies
+        git clone https://github.com/kkos/oniguruma --branch $(ONIGURUMA_VERSION) --depth 1 $(ONIGURUMA_CLONE)
+        cd $(ONIGURUMA_CLONE)
+        ./autogen.sh
+        ./configure
+        make -j4
+      condition: ne(variables.ONIGURUMA_CACHE, 'true')
+      displayName: clone and build oniguruma
+    - script: cd $(ONIGURUMA_CLONE) && sudo make install && sudo ldconfig
+      displayName: install oniguruma
