@@ -24,6 +24,10 @@ needed).
 
 make a compiled pattern
 
+#### `compile_regset(*patterns: str) -> _RegSet`
+
+make a compiled RegSet
+
 #### `_Pattern.match(s: str, start: int = 0) -> Optional[_Match]`
 
 match a string using the pattern.  optionally set `start` to adjust the offset
@@ -33,6 +37,14 @@ which is searched from
 
 search a string using the pattern.  optionally set `start` to adjust the offset
 which is searched from
+
+#### `_RegSet.search(s: str, start: int = 0) -> Tuple[int, Optional[_Match]]`
+
+search a string using the RegSet.  optionally set `start` to adjust the offset
+which is searched from
+
+the leftmost regex index and match is returned or `(-1, None)` if there is no
+match
 
 #### `_Match.group(n: int = 0) -> str`
 
@@ -50,6 +62,11 @@ return the character position of the start of the matched group, defaults to 0
 #### `_Match.end(n: int = 0) -> int`
 
 return the character position of the end of the matched group, defaults to 0
+(the whole match)
+
+#### `_Match.span(n: int = 0) -> int`
+
+return `(start, end)~ character position of the matched group, defaults to 0
 (the whole match)
 
 #### `_Match.expand(s: str) -> str`

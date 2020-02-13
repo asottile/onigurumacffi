@@ -14,6 +14,11 @@ struct re_pattern_buffer;
 typedef struct re_pattern_buffer OnigRegexType;
 typedef OnigRegexType regex_t;
 
+struct OnigRegSetStruct;
+typedef struct OnigRegSetStruct OnigRegSet;
+
+typedef enum { ONIG_REGSET_POSITION_LEAD = ..., ...} OnigRegSetLead;
+
 struct OnigEncodingTypeST{...;};
 typedef struct OnigEncodingTypeST OnigEncodingType;
 extern OnigEncodingType OnigEncodingUTF8;
@@ -64,6 +69,19 @@ int onig_search(
     const OnigUChar* start, const OnigUChar* range,
     OnigRegion* region,
     OnigOptionType option
+);
+
+int onig_regset_new(OnigRegSet** rset, int n, regex_t* regs[]);
+
+void onig_regset_free(OnigRegSet*);
+
+int onig_regset_search(
+    OnigRegSet* set,
+    const OnigUChar* str, const OnigUChar* end,
+    const OnigUChar* start, const OnigUChar* range,
+    OnigRegSetLead lead,
+    OnigOptionType option,
+    int* rmatch_pos
 );
 
 const char* onig_version(void);
