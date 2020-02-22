@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [ "$#" -lt 2 ] || [ ! -d "$1" ]; then
+    echo "usage $0 PREFIX EXE ..."
+    exit 1
+fi
+
+PREFIX="$1"
+shift
+
+export PATH="$PREFIX/bin:$PATH"
+export CPATH="$PREFIX/include"
+export LD_LIBRARY_PATH="$PREFIX/lib"
+export LIBRARY_PATH="$PREFIX/lib"
+export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
+
+exec "$@"

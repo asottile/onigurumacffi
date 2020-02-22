@@ -33,6 +33,8 @@ __onig_version__ = _ffi.string(_lib.onig_version()).decode()
 
 
 class _Match:
+    __slots__ = ('_s_b', '_begs', '_ends')
+
     def __init__(
         self,
         s_b: bytes,
@@ -86,8 +88,8 @@ def _match_ret(ret: int, s_b: bytes, region: Any) -> Optional[_Match]:
     else:
         _check(ret)
 
-    begs = tuple(region[0].beg[i] for i in range(region[0].num_regs))
-    ends = tuple(region[0].end[i] for i in range(region[0].num_regs))
+    begs = tuple(region[0].beg[0:region[0].num_regs])
+    ends = tuple(region[0].end[0:region[0].num_regs])
 
     return _Match(s_b, begs, ends)
 
@@ -130,15 +132,9 @@ class _Pattern:
 
 
 class _RegSet:
-    def __init__(
-            self,
-            patterns: Tuple[str, ...],
-            regset_t: Any,
-            regexes: Any,
-    ) -> None:
+    def __init__(self, patterns: Tuple[str, ...], regset_t: Any) -> None:
         self._patterns = patterns
         self._regset_t = _ffi.gc(regset_t, _lib.onig_regset_free)
-        self._regexes = regexes
 
     def __repr__(self) -> str:
         patterns = ', '.join(repr(pattern) for pattern in self._patterns)
@@ -163,7 +159,7 @@ class _RegSet:
 
         region = _region()
         ret = _lib.onig_search(
-            self._regexes[idx],
+            _lib.onig_regset_get_regex(self._regset_t, idx),
             s_buf, s_buf + len(s_b),
             s_buf + pos[0], s_buf + len(s_b),
             region,
@@ -203,4 +199,4 @@ def compile_regset(*patterns: str) -> _RegSet:
     regset = _ffi.new('OnigRegSet*[1]')
     ret = _lib.onig_regset_new(regset, len(patterns), regexes)
     _check(ret)
-    return _RegSet(patterns, regset[0], regexes)
+    return _RegSet(patterns, regset[0])

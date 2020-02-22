@@ -4,7 +4,9 @@
 *.pyc
 *.so
 /.coverage
+/.eggs
 /.mypy_cache
 /.tox
 /build
 /dist
+/venv*
