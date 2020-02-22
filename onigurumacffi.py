@@ -51,8 +51,7 @@ class _Match:
     def group(self, n: int = 0) -> str:
         return self._s_b[self._begs[n]:self._ends[n]].decode()
 
-    def __getitem__(self, n: int) -> str:
-        return self.group(n)
+    __getitem__ = group
 
     def start(self, n: int = 0) -> int:
         return len(self._s_b[:self._begs[n]].decode())
