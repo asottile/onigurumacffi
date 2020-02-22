@@ -75,6 +75,8 @@ int onig_regset_new(OnigRegSet** rset, int n, regex_t* regs[]);
 
 void onig_regset_free(OnigRegSet*);
 
+regex_t* onig_regset_get_regex(OnigRegSet* set, int at);
+
 int onig_regset_search(
     OnigRegSet* set,
     const OnigUChar* str, const OnigUChar* end,
