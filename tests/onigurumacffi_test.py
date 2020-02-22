@@ -26,6 +26,12 @@ def test_regex_compile_failure():
         onigurumacffi.compile('(')
 
 
+def test_regex_number_of_captures():
+    assert FOO_RE.number_of_captures() == 0
+    assert ABC_RE.number_of_captures() == 2
+    assert UNICODE_RE.number_of_captures() == 1
+
+
 def test_match_failure():
     assert FOO_RE.match('bar') is None
 

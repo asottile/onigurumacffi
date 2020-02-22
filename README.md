@@ -38,6 +38,10 @@ which is searched from
 search a string using the pattern.  optionally set `start` to adjust the offset
 which is searched from
 
+#### `_Pattern.number_of_captures() -> int`
+
+return the number of captures in the regex
+
 #### `_RegSet.search(s: str, start: int = 0) -> Tuple[int, Optional[_Match]]`
 
 search a string using the RegSet.  optionally set `start` to adjust the offset
