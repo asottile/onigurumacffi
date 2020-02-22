@@ -102,6 +102,9 @@ class _Pattern:
     def __repr__(self) -> str:
         return f'{__name__}.compile({self._pattern!r})'
 
+    def number_of_captures(self) -> int:
+        return _lib.onig_number_of_captures(self._regex_t)
+
     def match(self, s: str, start: int = 0) -> Optional[_Match]:
         s_b, start_b, s_buf = _start_params(s, start)
         region = _region()

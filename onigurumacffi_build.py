@@ -55,6 +55,8 @@ int onig_new(
 
 void onig_free(regex_t*);
 
+int onig_number_of_captures(regex_t* reg);
+
 int onig_match(
     regex_t* reg,
     const OnigUChar* str, const OnigUChar* end,
