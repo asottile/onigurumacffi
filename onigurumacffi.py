@@ -26,9 +26,7 @@ def _check(code: int, *args: Any) -> None:
         raise OnigError(_err(code, *args))
 
 
-_UTF8 = _ffi.addressof(_lib.OnigEncodingUTF8)
-_SYNTAX = _ffi.addressof(_lib.OnigSyntaxOniguruma)
-_check(_lib.onig_initialize([_UTF8], 1))
+_check(_lib.onigcffi_initialize())
 __onig_version__ = _ffi.string(_lib.onig_version()).decode()
 
 
@@ -66,19 +64,12 @@ class _Match:
         return _BACKREF_RE.sub(lambda m: f'{m[1]}{self[int(m[2])]}', s)
 
 
-def _region_free(region: Any) -> None:
-    _lib.onig_region_free(region, 1)
-
-
-def _start_params(s: str, start: int) -> Tuple[bytes, int, Any]:
-    s_b = s.encode()
-    start_b = len(s[:start].encode())
-    s_buf = _ffi.new('OnigUChar[]', s_b)
-    return s_b, start_b, s_buf
+def _start_params(s: str, start: int) -> Tuple[bytes, int]:
+    return s.encode(), len(s[:start].encode())
 
 
 def _region() -> Any:
-    return _ffi.gc(_lib.onig_region_new(), _region_free)
+    return _ffi.gc(_lib.onig_region_new(), _lib.onigcffi_region_free)
 
 
 def _match_ret(ret: int, s_b: bytes, region: Any) -> Optional[_Match]:
@@ -105,29 +96,21 @@ class _Pattern:
         return _lib.onig_number_of_captures(self._regex_t)
 
     def match(self, s: str, start: int = 0) -> Optional[_Match]:
-        s_b, start_b, s_buf = _start_params(s, start)
+        s_b, start_b = _start_params(s, start)
         region = _region()
 
-        ret = _lib.onig_match(
-            self._regex_t,
-            s_buf, s_buf + len(s_b),
-            s_buf + start_b,
-            region,
-            _lib.ONIG_OPTION_NONE,
+        ret = _lib.onigcffi_match(
+            self._regex_t, s_b, len(s_b), start_b, region,
         )
 
         return _match_ret(ret, s_b, region)
 
     def search(self, s: str, start: int = 0) -> Optional[_Match]:
-        s_b, start_b, s_buf = _start_params(s, start)
+        s_b, start_b = _start_params(s, start)
         region = _region()
 
-        ret = _lib.onig_search(
-            self._regex_t,
-            s_buf, s_buf + len(s_b),
-            s_buf + start_b, s_buf + len(s_b),
-            region,
-            _lib.ONIG_OPTION_NONE,
+        ret = _lib.onigcffi_search(
+            self._regex_t, s_b, len(s_b), start_b, region,
         )
 
         return _match_ret(ret, s_b, region)
@@ -143,47 +126,20 @@ class _RegSet:
         return f'{__name__}.compile_regset({patterns})'
 
     def search(self, s: str, start: int = 0) -> Tuple[int, Optional[_Match]]:
-        s_b, start_b, s_buf = _start_params(s, start)
-        pos = _ffi.new('int[1]')
+        s_b, start_b = _start_params(s, start)
+        region = _ffi.new('OnigRegion*[1]')
 
-        idx = _lib.onig_regset_search(
-            self._regset_t,
-            s_buf, s_buf + len(s_b),
-            s_buf + start_b, s_buf + len(s_b),
-            _lib.ONIG_REGSET_POSITION_LEAD,
-            _lib.ONIG_OPTION_NONE,
-            pos,
+        idx = _lib.onigcffi_regset_search(
+            self._regset_t, s_b, len(s_b), start_b, region,
         )
-        if idx == _lib.ONIG_MISMATCH:
-            return idx, None
-        else:
-            _check(idx)
-
-        region = _region()
-        ret = _lib.onig_search(
-            _lib.onig_regset_get_regex(self._regset_t, idx),
-            s_buf, s_buf + len(s_b),
-            s_buf + pos[0], s_buf + len(s_b),
-            region,
-            _lib.ONIG_OPTION_NONE,
-        )
-        return idx, _match_ret(ret, s_b, region)
+        return idx, _match_ret(idx, s_b, region[0])
 
 
 def _compile_regex_t(pattern: str, dest: Any) -> None:
     pattern_b = pattern.encode()
 
-    pattern_buf = _ffi.new('OnigUChar[]', pattern_b)
     err_info = _ffi.new('OnigErrorInfo[1]')
-
-    ret = _lib.onig_new(
-        dest,
-        pattern_buf, pattern_buf + len(pattern_b),
-        _lib.ONIG_OPTION_NONE,
-        _UTF8,
-        _SYNTAX,
-        err_info,
-    )
+    ret = _lib.onigcffi_new(dest, pattern_b, len(pattern_b), err_info)
     _check(ret, err_info)
 
 
@@ -199,6 +155,5 @@ def compile_regset(*patterns: str) -> _RegSet:
         _compile_regex_t(pattern, regexes + i)
 
     regset = _ffi.new('OnigRegSet*[1]')
-    ret = _lib.onig_regset_new(regset, len(patterns), regexes)
-    _check(ret)
+    _check(_lib.onig_regset_new(regset, len(patterns), regexes))
     return _RegSet(patterns, regset[0])
