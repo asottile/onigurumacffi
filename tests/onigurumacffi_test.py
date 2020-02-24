@@ -8,11 +8,6 @@ UNICODE_RE = onigurumacffi.compile('.*?(🙃+)')
 REGSET = onigurumacffi.compile_regset('a+', 'b+', 'c+')
 
 
-def test_region_free():
-    region = onigurumacffi._lib.onig_region_new()
-    onigurumacffi._region_free(region)
-
-
 def test_regex_compiles():
     assert FOO_RE is not None
 
