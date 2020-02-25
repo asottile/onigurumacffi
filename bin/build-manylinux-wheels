@@ -34,7 +34,7 @@ def main() -> int:
     PROG = f'''\
 /opt/python/cp36-cp36m/bin/pip wheel --wheel-dir /work --no-deps {pkg} &&
 auditwheel repair --wheel-dir /dist /work/*.whl &&
-ls /dist/*.whl
+ls /dist/*.whl &&
 unzip -l /dist/*.whl
 '''
 
