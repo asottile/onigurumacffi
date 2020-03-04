@@ -70,7 +70,7 @@ return the character position of the end of the matched group, defaults to 0
 
 #### `_Match.span(n: int = 0) -> int`
 
-return `(start, end)~ character position of the matched group, defaults to 0
+return `(start, end)` character position of the matched group, defaults to 0
 (the whole match)
 
 #### `_Match.expand(s: str) -> str`
