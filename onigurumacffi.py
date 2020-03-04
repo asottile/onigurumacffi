@@ -63,6 +63,10 @@ class _Match:
     def expand(self, s: str) -> str:
         return _BACKREF_RE.sub(lambda m: f'{m[1]}{self[int(m[2])]}', s)
 
+    @property
+    def string(self) -> str:
+        return self._s_b.decode()
+
 
 def _start_params(s: str, start: int) -> Tuple[bytes, int]:
     return s.encode(), len(s[:start].encode())

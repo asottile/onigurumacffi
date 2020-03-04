@@ -115,11 +115,17 @@ def test_search_no_match():
     assert match is None
 
 
-def test_expand():
+def test_match_expand():
     match = ABC_RE.match('aaaBccccddd')
     assert match is not None
     assert match.expand(r'foo\1\1\1') == 'fooaaaaaaaaa'
     assert match.expand(r'foo\2\1') == 'fooccccaaa'
+
+
+def test_match_string():
+    match = FOO_RE.match('food')
+    assert match is not None
+    assert match.string == 'food'
 
 
 def test_regset_repr():
