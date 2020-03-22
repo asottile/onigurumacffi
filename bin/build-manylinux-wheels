@@ -4,22 +4,18 @@ import os
 import shutil
 import subprocess
 
+with open(os.path.join(os.path.dirname(__file__), 'build-oniguruma')) as f:
+    CLONE_SCRIPT = ' && '.join(f.read().splitlines()[3:])
+
 IMG = 'onigurumacffi-build'
 # TODO: switch back to a tag
-REV = '50f78810ab0ab2b19c6caecf91a2043fde87c2ea'
 DOCKERFILE = f'''\
 FROM quay.io/pypa/manylinux1_x86_64:latest
 RUN : \
-    && git init oniguruma \
-    && cd oniguruma \
-    && git remote add origin https://github.com/kkos/oniguruma \
-    && git -c protocol.version=2 fetch --depth 1 origin {REV} \
-    && git checkout FETCH_HEAD \
-    && ./autogen.sh \
-    && ./configure \
+    && ONIGURUMA_CLONE="$PWD/oniguruma" \
+    && {CLONE_SCRIPT} \
     && make -j4 install \
-    && cd .. \
-    && rm -rf oniguruma
+    && rm -rf "$ONIGURUMA_CLONE"
 '''
 
 
