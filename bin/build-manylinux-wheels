@@ -4,17 +4,16 @@ import os
 import shutil
 import subprocess
 
-with open(os.path.join(os.path.dirname(__file__), 'build-oniguruma')) as f:
+with open(os.path.join(os.path.dirname(__file__), 'clone-oniguruma')) as f:
     CLONE_SCRIPT = ' && '.join(f.read().splitlines()[3:])
 
 IMG = 'onigurumacffi-build'
-# TODO: switch back to a tag
 DOCKERFILE = f'''\
 FROM quay.io/pypa/manylinux1_x86_64:latest
 RUN : \
     && ONIGURUMA_CLONE="$PWD/oniguruma" \
     && {CLONE_SCRIPT} \
-    && make -j4 install \
+    && ./autogen.sh && ./configure && make -j4 install \
     && rm -rf "$ONIGURUMA_CLONE"
 '''
 

@@ -1,3 +1,6 @@
+import os
+import sys
+
 from cffi import FFI
 
 CDEF = '''\
@@ -132,7 +135,17 @@ int onigcffi_regset_search(
 
 ffibuilder = FFI()
 ffibuilder.cdef(CDEF)
-ffibuilder.set_source('_onigurumacffi', SRC, libraries=['onig'])
+
+if sys.platform == 'win32':
+    ffibuilder.set_source(
+        '_onigurumacffi', SRC,
+        libraries=['onig_s'],
+        define_macros=[('ONIG_EXTERN', 'extern')],
+        include_dirs=[os.path.join(os.environ['ONIGURUMA_CLONE'], 'src')],
+        library_dirs=[os.environ['ONIGURUMA_CLONE']],
+    )
+else:
+    ffibuilder.set_source('_onigurumacffi', SRC, libraries=['onig'])
 
 if __name__ == '__main__':
     ffibuilder.compile(verbose=True)
