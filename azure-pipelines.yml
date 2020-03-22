@@ -10,30 +10,44 @@ resources:
       type: github
       endpoint: github
       name: asottile/azure-pipeline-templates
-      ref: refs/tags/v1.0.1
+      ref: refs/tags/v1.1.0
 
 jobs:
 - template: job--pre-commit.yml@asottile
 - template: job--python-tox.yml@asottile
   parameters:
+    toxenvs: [py36]
+    os: macos
+    wheel_tags: true
+    additional_variables:
+      ONIGURUMA_CLONE: $(Pipeline.Workspace)/oniguruma
+    pre_test:
+    - script: brew install autoconf automake libtool
+      displayName: install autotools
+    - task: Cache@2
+      inputs:
+        key: macos-oniguruma | bin/build-oniguruma
+        path: $(ONIGURUMA_CLONE)
+        cacheHitVar: ONIGURUMA_CACHE
+    - script: ./bin/build-oniguruma
+      condition: ne(variables.ONIGURUMA_CACHE, 'true')
+      displayName: clone and build oniguruma
+    - script: sudo make -C $(ONIGURUMA_CLONE) install
+      displayName: install oniguruma
+- template: job--python-tox.yml@asottile
+  parameters:
     toxenvs: [pypy3, py36, py37, py38]
     os: linux
     additional_variables:
-      ONIGURUMA_VERSION: v6.9.4
       ONIGURUMA_CLONE: $(Pipeline.Workspace)/oniguruma
     pre_test:
     - task: Cache@2
       inputs:
-        key: oniguruma | "$(ONIGURUMA_VERSION)"
+        key: linux-oniguruma | bin/build-oniguruma
         path: $(ONIGURUMA_CLONE)
         cacheHitVar: ONIGURUMA_CACHE
-    - script: |
-        git clone https://github.com/kkos/oniguruma --branch $(ONIGURUMA_VERSION) --depth 1 $(ONIGURUMA_CLONE)
-        cd $(ONIGURUMA_CLONE)
-        ./autogen.sh
-        ./configure
-        make -j4
+    - script: ./bin/build-oniguruma
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
       displayName: clone and build oniguruma
-    - script: cd $(ONIGURUMA_CLONE) && sudo make install && sudo ldconfig
+    - script: sudo make -C $(ONIGURUMA_CLONE) install && sudo ldconfig
       displayName: install oniguruma

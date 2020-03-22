@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+# TODO: switch back to a tag
+ONIGURUMA_VERSION=50f78810ab0ab2b19c6caecf91a2043fde87c2ea
+git init "${ONIGURUMA_CLONE}"
+cd "${ONIGURUMA_CLONE}"
+git remote add origin https://github.com/kkos/oniguruma
+git -c protocol.version=2 fetch --depth=1 origin "${ONIGURUMA_VERSION}"
+git checkout FETCH_HEAD
+./autogen.sh
+./configure
+make -j4
