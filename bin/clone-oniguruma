@@ -7,6 +7,3 @@ cd "${ONIGURUMA_CLONE}"
 git remote add origin https://github.com/kkos/oniguruma
 git -c protocol.version=2 fetch --depth=1 origin "${ONIGURUMA_VERSION}"
 git checkout FETCH_HEAD
-./autogen.sh
-./configure
-make -j4

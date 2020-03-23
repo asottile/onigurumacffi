@@ -16,23 +16,48 @@ jobs:
 - template: job--pre-commit.yml@asottile
 - template: job--python-tox.yml@asottile
   parameters:
+    toxenvs: [py36, py37, py38]
+    os: windows
+    wheel_tags: true
+    additional_variables:
+      ONIGURUMA_CLONE: $(Pipeline.Workspace)\oniguruma
+    pre_test:
+    - task: Cache@2
+      inputs:
+        key: windows-oniguruma | bin/clone-oniguruma
+        path: $(ONIGURUMA_CLONE)
+        cacheHitVar: ONIGURUMA_CACHE
+    - bash: ./bin/clone-oniguruma
+      condition: ne(variables.ONIGURUMA_CACHE, 'true')
+      displayName: clone oniguruma
+    - script: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+        cd %ONIGURUMA_CLONE%
+        make_win.bat
+      condition: ne(variables.ONIGURUMA_CACHE, 'true')
+      displayName: build oniguruma
+- template: job--python-tox.yml@asottile
+  parameters:
     toxenvs: [py36]
     os: macos
     wheel_tags: true
     additional_variables:
       ONIGURUMA_CLONE: $(Pipeline.Workspace)/oniguruma
     pre_test:
-    - script: brew install autoconf automake libtool
+    - bash: brew install autoconf automake libtool
       displayName: install autotools
     - task: Cache@2
       inputs:
-        key: macos-oniguruma | bin/build-oniguruma
+        key: macos-oniguruma | bin/clone-oniguruma
         path: $(ONIGURUMA_CLONE)
         cacheHitVar: ONIGURUMA_CACHE
-    - script: ./bin/build-oniguruma
+    - bash: |
+        ./bin/clone-oniguruma
+        cd "$ONIGURUMA_CLONE"
+        ./autogen.sh && ./configure && make -j4
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
       displayName: clone and build oniguruma
-    - script: sudo make -C $(ONIGURUMA_CLONE) install
+    - bash: sudo make -C "$ONIGURUMA_CLONE" install
       displayName: install oniguruma
 - template: job--python-tox.yml@asottile
   parameters:
@@ -43,11 +68,14 @@ jobs:
     pre_test:
     - task: Cache@2
       inputs:
-        key: linux-oniguruma | bin/build-oniguruma
+        key: linux-oniguruma | bin/clone-oniguruma
         path: $(ONIGURUMA_CLONE)
         cacheHitVar: ONIGURUMA_CACHE
-    - script: ./bin/build-oniguruma
+    - bash: |
+        ./bin/clone-oniguruma
+        cd "$ONIGURUMA_CLONE"
+        ./autogen.sh && ./configure && make -j4
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
       displayName: clone and build oniguruma
-    - script: sudo make -C $(ONIGURUMA_CLONE) install && sudo ldconfig
+    - bash: sudo make -C "$ONIGURUMA_CLONE" install && sudo ldconfig
       displayName: install oniguruma
