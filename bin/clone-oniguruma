@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 # TODO: switch back to a tag
-ONIGURUMA_VERSION=50f78810ab0ab2b19c6caecf91a2043fde87c2ea
+ONIGURUMA_VERSION=146b2fdcb383ffc03d39d9c0b1cb06ec3c043e7b
 git init "${ONIGURUMA_CLONE}"
 cd "${ONIGURUMA_CLONE}"
 git remote add origin https://github.com/kkos/oniguruma
