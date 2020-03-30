@@ -160,3 +160,11 @@ def test_regset_empty_match_at_end_of_string():
     assert idx == 1
     assert match is not None
     assert match.group() == ''
+
+
+def test_regset_empty_match_empty_string():
+    regset = onigurumacffi.compile_regset('a', '.*')
+    idx, match = regset.search('')
+    assert idx == 1
+    assert match is not None
+    assert match.group() == ''
