@@ -12,7 +12,7 @@ python cffi bindings for the oniguruma regex engine
 pip install onigurumacffi
 ```
 
-- manylinux wheels should be available on pypi in most cases
+- wheels should be available on pypi in most cases
 - to build from source, `libonig-dev` must be installed prior to installation
 
 ### api
