@@ -10,7 +10,7 @@ resources:
       type: github
       endpoint: github
       name: asottile/azure-pipeline-templates
-      ref: refs/tags/v1.1.0
+      ref: refs/tags/v2.0.0
 
 jobs:
 - template: job--pre-commit.yml@asottile
@@ -18,20 +18,21 @@ jobs:
   parameters:
     toxenvs: [py36, py37, py38]
     os: windows
+    architectures: [x64, x86]
     wheel_tags: true
     additional_variables:
       ONIGURUMA_CLONE: $(Pipeline.Workspace)\oniguruma
     pre_test:
     - task: Cache@2
       inputs:
-        key: windows-oniguruma | bin/clone-oniguruma
+        key: windows-oniguruma | bin/clone-oniguruma | "$(arch)"
         path: $(ONIGURUMA_CLONE)
         cacheHitVar: ONIGURUMA_CACHE
     - bash: ./bin/clone-oniguruma
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
       displayName: clone oniguruma
     - script: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" $(arch)
         cd %ONIGURUMA_CLONE%
         make_win.bat
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
