@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
-ONIGURUMA_VERSION=v6.9.5
+ONIGURUMA_VERSION=v6.9.5_rev1
 git init "${ONIGURUMA_CLONE}"
 cd "${ONIGURUMA_CLONE}"
 git remote add origin https://github.com/kkos/oniguruma
