@@ -4,15 +4,11 @@ import os
 import shutil
 import subprocess
 
-with open(os.path.join(os.path.dirname(__file__), 'clone-oniguruma')) as f:
-    CLONE_SCRIPT = ' && '.join(f.read().splitlines()[3:])
-
-IMG = 'onigurumacffi-build'
-DOCKERFILE = f'''\
-FROM quay.io/pypa/manylinux1_x86_64:latest
+DOCKERFILE_FMT = '''\
+FROM {base}
 RUN : \
     && ONIGURUMA_CLONE="$PWD/oniguruma" \
-    && {CLONE_SCRIPT} \
+    && {clone} \
     && ./autogen.sh && ./configure && make -j4 install \
     && rm -rf "$ONIGURUMA_CLONE"
 '''
@@ -21,27 +17,40 @@ RUN : \
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('version')
+    parser.add_argument('--pypy', action='store_true')
     args = parser.parse_args()
 
+    if args.pypy:
+        img = 'onigurumacffi-build-pypy'
+        base = 'pypywheels/manylinux2010-pypy_x86_64:latest'
+        py_bin = '/opt/python/pp36-pypy36_pp73/bin'
+    else:
+        img = 'onigurumacffi-build-cpython'
+        base = 'quay.io/pypa/manylinux1_x86_64:latest'
+        py_bin = '/opt/python/cp36-cp36m/bin'
+
     pkg = f'onigurumacffi=={args.version}'
+
+    with open(os.path.join(os.path.dirname(__file__), 'clone-oniguruma')) as f:
+        clone = ' && '.join(f.read().splitlines()[3:])
+    dockerfile = DOCKERFILE_FMT.format(base=base, clone=clone).encode()
+
+    cmd = ('docker', 'build', '-t', img, '-')
+    subprocess.run(cmd, input=dockerfile, check=True)
 
     shutil.rmtree('dist', ignore_errors=True)
     os.makedirs('dist', exist_ok=True)
 
-    cmd = ('docker', 'build', '-t', IMG, '-')
-    subprocess.run(cmd, input=DOCKERFILE.encode(), check=True)
-
     PROG = f'''\
-/opt/python/cp36-cp36m/bin/pip wheel --wheel-dir /work --no-deps {pkg} &&
+{py_bin}/pip wheel --wheel-dir /work --no-deps {pkg} &&
 auditwheel repair --wheel-dir /dist /work/*.whl &&
-ls /dist/*.whl &&
-unzip -l /dist/*.whl
+find /dist/ -name '*.whl' -print0 | xargs -n1 -0 --verbose unzip -l
 '''
 
     return subprocess.call((
         'docker', 'run',
         '--volume', f'{os.path.abspath("dist")}:/dist:rw',
-        '--rm', '-ti', IMG, 'bash', '-euxc', PROG,
+        '--rm', '-ti', img, 'bash', '-euxc', PROG,
     ))
 
 
