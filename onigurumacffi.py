@@ -1,3 +1,4 @@
+import enum
 import re
 from typing import Any
 from typing import Optional
@@ -13,6 +14,16 @@ _BACKREF_RE = re.compile(r'((?<!\\)(?:\\\\)*)\\([0-9]+)')
 
 class OnigError(RuntimeError):
     pass
+
+
+class OnigSearchOption(enum.IntEnum):
+    NONE = _lib.ONIG_OPTION_NONE
+    NOTBOL = _lib.ONIG_OPTION_NOTBOL
+    NOTEOL = _lib.ONIG_OPTION_NOTEOL
+    POSIX_REGION = _lib.ONIG_OPTION_POSIX_REGION
+    CHECK_VALIDITY_OF_STRING = _lib.ONIG_OPTION_CHECK_VALIDITY_OF_STRING
+    NOT_BEGIN_STRING = _lib.ONIG_OPTION_NOT_BEGIN_STRING
+    NOT_BEGIN_POSITION = _lib.ONIG_OPTION_NOT_BEGIN_POSITION
 
 
 def _err(code: int, *args: Any) -> str:
@@ -99,22 +110,32 @@ class _Pattern:
     def number_of_captures(self) -> int:
         return _lib.onig_number_of_captures(self._regex_t)
 
-    def match(self, s: str, start: int = 0) -> Optional[_Match]:
+    def match(
+            self,
+            s: str,
+            start: int = 0,
+            flags: OnigSearchOption = OnigSearchOption.NONE,
+    ) -> Optional[_Match]:
         s_b, start_b = _start_params(s, start)
         region = _region()
 
         ret = _lib.onigcffi_match(
-            self._regex_t, s_b, len(s_b), start_b, region,
+            self._regex_t, s_b, len(s_b), start_b, region, flags,
         )
 
         return _match_ret(ret, s_b, region)
 
-    def search(self, s: str, start: int = 0) -> Optional[_Match]:
+    def search(
+            self,
+            s: str,
+            start: int = 0,
+            flags: OnigSearchOption = OnigSearchOption.NONE,
+    ) -> Optional[_Match]:
         s_b, start_b = _start_params(s, start)
         region = _region()
 
         ret = _lib.onigcffi_search(
-            self._regex_t, s_b, len(s_b), start_b, region,
+            self._regex_t, s_b, len(s_b), start_b, region, flags,
         )
 
         return _match_ret(ret, s_b, region)
@@ -129,12 +150,17 @@ class _RegSet:
         patterns = ', '.join(repr(pattern) for pattern in self._patterns)
         return f'{__name__}.compile_regset({patterns})'
 
-    def search(self, s: str, start: int = 0) -> Tuple[int, Optional[_Match]]:
+    def search(
+            self,
+            s: str,
+            start: int = 0,
+            flags: OnigSearchOption = OnigSearchOption.NONE,
+    ) -> Tuple[int, Optional[_Match]]:
         s_b, start_b = _start_params(s, start)
         region = _ffi.new('OnigRegion*[1]')
 
         idx = _lib.onigcffi_regset_search(
-            self._regset_t, s_b, len(s_b), start_b, region,
+            self._regset_t, s_b, len(s_b), start_b, region, flags,
         )
         return idx, _match_ret(idx, s_b, region[0])
 

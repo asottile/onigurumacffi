@@ -28,12 +28,29 @@ make a compiled pattern
 
 make a compiled RegSet
 
-#### `_Pattern.match(s: str, start: int = 0) -> Optional[_Match]`
+#### `OnigSearchOption`
+
+an enum listing the search-time options for oniguruma
+
+the current set of options are:
+
+```python
+class OnigSearchOption(enum.IntEnum):
+    NONE = ...
+    NOTBOL = ...
+    NOTEOL = ...
+    POSIX_REGION = ...
+    CHECK_VALIDITY_OF_STRING = ...
+    NOT_BEGIN_STRING = ...
+    NOT_BEGIN_POSITION = ...
+```
+
+#### `_Pattern.match(s: str, start: int = 0, flags: OnigSearchOption = OnigSearchOption.NONE) -> Optional[_Match]`
 
 match a string using the pattern.  optionally set `start` to adjust the offset
 which is searched from
 
-#### `_Pattern.search(s: str, start: int = 0) -> Optional[_Match]`
+#### `_Pattern.search(s: str, start: int = 0, flags: OnigSearchOption = OnigSearchOption.NONE) -> Optional[_Match]`
 
 search a string using the pattern.  optionally set `start` to adjust the offset
 which is searched from
@@ -42,7 +59,7 @@ which is searched from
 
 return the number of captures in the regex
 
-#### `_RegSet.search(s: str, start: int = 0) -> Tuple[int, Optional[_Match]]`
+#### `_RegSet.search(s: str, start: int = 0, flags: OnigSearchOption = OnigSearchOption.NONE) -> Tuple[int, Optional[_Match]]`
 
 search a string using the RegSet.  optionally set `start` to adjust the offset
 which is searched from

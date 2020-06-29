@@ -115,6 +115,23 @@ def test_search_no_match():
     assert match is None
 
 
+def test_search_with_flags():
+    reg_A = onigurumacffi.compile(r'\Afoo')
+    assert reg_A.search('foo')
+    assert not reg_A.search(
+        'foo',
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_STRING,
+    )
+
+    reg_G = onigurumacffi.compile(r'\Gfoo')
+    assert reg_G.search('afoo', start=1)
+    assert not reg_G.search(
+        'afoo',
+        start=1,
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_POSITION,
+    )
+
+
 def test_match_expand():
     match = ABC_RE.match('aaaBccccddd')
     assert match is not None
@@ -126,6 +143,28 @@ def test_match_string():
     match = FOO_RE.match('food')
     assert match is not None
     assert match.string == 'food'
+
+
+def test_match_with_flags():
+    reg_A = onigurumacffi.compile(r'\Afoo')
+    assert reg_A.match('foo')
+    assert not reg_A.match(
+        'foo',
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_STRING,
+    )
+
+    reg_G = onigurumacffi.compile(r'\Gfoo')
+    assert reg_G.match('foo')
+    assert not reg_G.match(
+        'foo',
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_POSITION,
+    )
+
+    reg_not_G = onigurumacffi.compile(r'(?!\G)')
+    assert not reg_not_G.match('foo')
+    assert reg_not_G.match(
+        'foo', flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_POSITION,
+    )
 
 
 def test_regset_repr():
@@ -168,3 +207,30 @@ def test_regset_empty_match_empty_string():
     assert idx == 1
     assert match is not None
     assert match.group() == ''
+
+
+def test_regset_search_with_flags():
+    regset_A = onigurumacffi.compile_regset(r'\Afoo', 'foo')
+    idx, match = regset_A.search('foo')
+    assert idx == 0
+    assert match is not None
+
+    idx, match = regset_A.search(
+        'foo',
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_STRING,
+    )
+    assert idx == 1
+    assert match is not None
+
+    regset_G = onigurumacffi.compile_regset(r'\Gfoo', 'foo')
+    idx, match = regset_G.search('afoo', start=1)
+    assert idx == 0
+    assert match is not None
+
+    idx, match = regset_G.search(
+        'afoo',
+        start=1,
+        flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_POSITION,
+    )
+    assert idx == 1
+    assert match is not None
