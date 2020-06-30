@@ -8,6 +8,16 @@ CDEF = '''\
 
 #define ONIG_MISMATCH ...
 
+typedef unsigned int OnigOptionType;
+
+#define ONIG_OPTION_NONE ...
+#define ONIG_OPTION_NOTBOL ...
+#define ONIG_OPTION_NOTEOL ...
+#define ONIG_OPTION_POSIX_REGION ...
+#define ONIG_OPTION_CHECK_VALIDITY_OF_STRING ...
+#define ONIG_OPTION_NOT_BEGIN_STRING ...
+#define ONIG_OPTION_NOT_BEGIN_POSITION ...
+
 typedef unsigned char OnigUChar;
 
 int onigcffi_initialize(void);
@@ -42,13 +52,15 @@ int onig_number_of_captures(regex_t* reg);
 int onigcffi_match(
     regex_t* reg,
     const OnigUChar* str, size_t len, size_t start,
-    OnigRegion* region
+    OnigRegion* region,
+    OnigOptionType flags
 );
 
 int onigcffi_search(
     regex_t* reg,
     const OnigUChar* str, size_t len, size_t start,
-    OnigRegion* region
+    OnigRegion* region,
+    OnigOptionType flags
 );
 
 typedef ... OnigRegSet;
@@ -57,7 +69,8 @@ void onig_regset_free(OnigRegSet*);
 
 int onigcffi_regset_search(
     OnigRegSet* set,
-    const OnigUChar* str, size_t len, size_t start, OnigRegion** region
+    const OnigUChar* str, size_t len, size_t start, OnigRegion** region,
+    OnigOptionType flags
 );
 '''
 SRC = '''\
@@ -89,33 +102,36 @@ int onigcffi_new(
 
 int onigcffi_match(
     regex_t* reg,
-    const OnigUChar* str, size_t len, size_t start, OnigRegion* region
+    const OnigUChar* str, size_t len, size_t start, OnigRegion* region,
+    OnigOptionType flags
 ) {
     return onig_match(
         reg,
         str, str + len,
         str + start,
         region,
-        ONIG_OPTION_NONE
+        flags
     );
 }
 
 int onigcffi_search(
     regex_t* reg,
-    const OnigUChar* str, size_t len, size_t start, OnigRegion* region
+    const OnigUChar* str, size_t len, size_t start, OnigRegion* region,
+    OnigOptionType flags
 ) {
     return onig_search(
         reg,
         str, str + len,
         str + start, str + len,
         region,
-        ONIG_OPTION_NONE
+        flags
     );
 }
 
 int onigcffi_regset_search(
     OnigRegSet* set,
-    const OnigUChar* str, size_t len, size_t start, OnigRegion** region
+    const OnigUChar* str, size_t len, size_t start, OnigRegion** region,
+    OnigOptionType flags
 ) {
     int _unused_match_pos;
     int idx = onig_regset_search(
@@ -123,7 +139,7 @@ int onigcffi_regset_search(
         str, str + len,
         str + start, str + len,
         ONIG_REGSET_POSITION_LEAD,
-        ONIG_OPTION_NONE,
+        flags,
         &_unused_match_pos
     );
     if (idx >= 0) {
