@@ -131,6 +131,13 @@ def test_search_with_flags():
         flags=onigurumacffi.OnigSearchOption.NOT_BEGIN_POSITION,
     )
 
+    reg_z = onigurumacffi.compile(r'foo\z')
+    assert reg_z.search('hello foo')
+    assert not reg_z.search(
+        'hello foo',
+        flags=onigurumacffi.OnigSearchOption.NOT_END_STRING,
+    )
+
 
 def test_match_expand():
     match = ABC_RE.match('aaaBccccddd')
