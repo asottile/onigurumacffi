@@ -1,5 +1,6 @@
 [![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/asottile.onigurumacffi?branchName=master)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=61&branchName=master)
 [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/61/master.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=61&branchName=master)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/asottile/onigurumacffi/master.svg)](https://results.pre-commit.ci/latest/github/asottile/onigurumacffi/master)
 
 onigurumacffi
 =============
