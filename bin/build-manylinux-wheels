@@ -23,7 +23,7 @@ def main() -> int:
     if args.pypy:
         img = 'onigurumacffi-build-pypy'
         base = 'pypywheels/manylinux2010-pypy_x86_64:latest'
-        py_bin = '/opt/python/pp36-pypy36_pp73/bin'
+        py_bin = '/opt/python/pp37-pypy37_pp73/bin'
     else:
         img = 'onigurumacffi-build-cpython'
         base = 'quay.io/pypa/manylinux1_x86_64:latest'
