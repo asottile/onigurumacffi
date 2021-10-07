@@ -162,7 +162,11 @@ if sys.platform == 'win32':
         library_dirs=[os.environ['ONIGURUMA_CLONE']],
     )
 else:
-    ffibuilder.set_source('_onigurumacffi', SRC, libraries=['onig'])
+    ffibuilder.set_source(
+        '_onigurumacffi', SRC,
+        libraries=['onig'],
+        include_dirs=['/opt/local/include'],
+    )
 
 if __name__ == '__main__':
     ffibuilder.compile(verbose=True)
