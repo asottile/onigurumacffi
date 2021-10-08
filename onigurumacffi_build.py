@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 from cffi import FFI
@@ -153,6 +154,13 @@ int onigcffi_regset_search(
 ffibuilder = FFI()
 ffibuilder.cdef(CDEF)
 
+def onigconfig(**kw):
+    flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
+    output = subprocess.getoutput('onig-config --cflags --libs')
+    for token in output.strip().split():
+        kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
+    return kw
+
 if sys.platform == 'win32':
     ffibuilder.set_source(
         '_onigurumacffi', SRC,
@@ -162,7 +170,8 @@ if sys.platform == 'win32':
         library_dirs=[os.environ['ONIGURUMA_CLONE']],
     )
 else:
-    ffibuilder.set_source('_onigurumacffi', SRC, libraries=['onig'])
+    config = onigconfig()
+    ffibuilder.set_source('_onigurumacffi', SRC, **config)
 
 if __name__ == '__main__':
     ffibuilder.compile(verbose=True)
