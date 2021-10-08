@@ -154,12 +154,14 @@ int onigcffi_regset_search(
 ffibuilder = FFI()
 ffibuilder.cdef(CDEF)
 
+
 def onigconfig(**kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = subprocess.getoutput('onig-config --cflags --libs')
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
+
 
 if sys.platform == 'win32':
     ffibuilder.set_source(
