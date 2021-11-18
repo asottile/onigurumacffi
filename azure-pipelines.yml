@@ -38,7 +38,7 @@ jobs:
       displayName: build oniguruma
 - template: job--python-tox.yml@asottile
   parameters:
-    toxenvs: [py36]
+    toxenvs: [py37]
     os: macos
     wheel_tags: true
     additional_variables:
