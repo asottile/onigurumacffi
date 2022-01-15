@@ -1,8 +1,8 @@
+from __future__ import annotations
+
 import enum
 import re
 from typing import Any
-from typing import Optional
-from typing import Tuple
 
 import _onigurumacffi
 
@@ -48,8 +48,8 @@ class _Match:
     def __init__(
         self,
         s_b: bytes,
-        begs: Tuple[int, ...],
-        ends: Tuple[int, ...],
+        begs: tuple[int, ...],
+        ends: tuple[int, ...],
     ) -> None:
         self._s_b = s_b
         self._begs = begs
@@ -69,7 +69,7 @@ class _Match:
     def end(self, n: int = 0) -> int:
         return len(self._s_b[:self._ends[n]].decode())
 
-    def span(self, n: int = 0) -> Tuple[int, int]:
+    def span(self, n: int = 0) -> tuple[int, int]:
         return self.start(n), self.end(n)
 
     def expand(self, s: str) -> str:
@@ -80,7 +80,7 @@ class _Match:
         return self._s_b.decode()
 
 
-def _start_params(s: str, start: int) -> Tuple[bytes, int]:
+def _start_params(s: str, start: int) -> tuple[bytes, int]:
     return s.encode(), len(s[:start].encode())
 
 
@@ -88,7 +88,7 @@ def _region() -> Any:
     return _ffi.gc(_lib.onig_region_new(), _lib.onigcffi_region_free)
 
 
-def _match_ret(ret: int, s_b: bytes, region: Any) -> Optional[_Match]:
+def _match_ret(ret: int, s_b: bytes, region: Any) -> _Match | None:
     if ret == _lib.ONIG_MISMATCH:
         return None
     else:
@@ -116,7 +116,7 @@ class _Pattern:
             s: str,
             start: int = 0,
             flags: OnigSearchOption = OnigSearchOption.NONE,
-    ) -> Optional[_Match]:
+    ) -> _Match | None:
         s_b, start_b = _start_params(s, start)
         region = _region()
 
@@ -131,7 +131,7 @@ class _Pattern:
             s: str,
             start: int = 0,
             flags: OnigSearchOption = OnigSearchOption.NONE,
-    ) -> Optional[_Match]:
+    ) -> _Match | None:
         s_b, start_b = _start_params(s, start)
         region = _region()
 
@@ -143,7 +143,7 @@ class _Pattern:
 
 
 class _RegSet:
-    def __init__(self, patterns: Tuple[str, ...], regset_t: Any) -> None:
+    def __init__(self, patterns: tuple[str, ...], regset_t: Any) -> None:
         self._patterns = patterns
         self._regset_t = _ffi.gc(regset_t, _lib.onig_regset_free)
 
@@ -156,7 +156,7 @@ class _RegSet:
             s: str,
             start: int = 0,
             flags: OnigSearchOption = OnigSearchOption.NONE,
-    ) -> Tuple[int, Optional[_Match]]:
+    ) -> tuple[int, _Match | None]:
         s_b, start_b = _start_params(s, start)
         region = _ffi.new('OnigRegion*[1]')
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import argparse
 import os
 import shutil
@@ -27,7 +29,7 @@ def main() -> int:
     else:
         img = 'onigurumacffi-build-cpython'
         base = 'quay.io/pypa/manylinux1_x86_64:latest'
-        py_bin = '/opt/python/cp36-cp36m/bin'
+        py_bin = '/opt/python/cp37-cp37m/bin'
 
     pkg = f'onigurumacffi=={args.version}'
 

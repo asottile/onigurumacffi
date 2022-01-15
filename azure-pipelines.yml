@@ -15,7 +15,7 @@ resources:
 jobs:
 - template: job--python-tox.yml@asottile
   parameters:
-    toxenvs: [py36]
+    toxenvs: [py37]
     os: windows
     architectures: [x64, x86]
     wheel_tags: true
@@ -61,7 +61,7 @@ jobs:
       displayName: install oniguruma
 - template: job--python-tox.yml@asottile
   parameters:
-    toxenvs: [pypy3, py36, py37, py38, py39]
+    toxenvs: [py37, py38, py39]
     os: linux
     additional_variables:
       ONIGURUMA_CLONE: $(Pipeline.Workspace)/oniguruma
