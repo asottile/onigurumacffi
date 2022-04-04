@@ -31,7 +31,7 @@ jobs:
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
       displayName: clone oniguruma
     - script: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" $(arch)
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" $(arch)
         cd %ONIGURUMA_CLONE%
         make_win.bat
       condition: ne(variables.ONIGURUMA_CACHE, 'true')
