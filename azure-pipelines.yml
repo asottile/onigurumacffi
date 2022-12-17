@@ -21,7 +21,9 @@ jobs:
     wheel_tags: true
     additional_variables:
       ONIGURUMA_CLONE: $(Pipeline.Workspace)\oniguruma
+      PIP_CONSTRAINT: $(Pipeline.Workspace)\tox.txt
     pre_test:
+    - bash: echo 'tox<4' > "$PIP_CONSTRAINT"
     - task: Cache@2
       inputs:
         key: windows-oniguruma | bin/clone-oniguruma | "$(arch)"
