@@ -1,5 +1,4 @@
-[![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/asottile.onigurumacffi?branchName=main)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=61&branchName=main)
-[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/61/main.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=61&branchName=main)
+[![build status](https://github.com/asottile/onigurumacffi/actions/workflows/main.yml/badge.svg)](https://github.com/asottile/onigurumacffi/actions/workflows/main.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/asottile/onigurumacffi/main.svg)](https://results.pre-commit.ci/latest/github/asottile/onigurumacffi/main)
 
 onigurumacffi
