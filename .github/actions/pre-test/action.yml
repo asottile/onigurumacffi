@@ -1,0 +1,62 @@
+inputs:
+  arch:
+    default: ${{ matrix.arch }}
+runs:
+  using: composite
+  steps:
+  - name: use tox 3
+    shell: bash
+    run: |
+      PIP_CONSTRAINT="${GITHUB_WORKSPACE}/../constraints.txt"
+      echo "PIP_CONSTRAINT=$PIP_CONSTRAINT" >> "$GITHUB_ENV"
+      echo 'tox<4' > "$PIP_CONSTRAINT"
+  - name: setup vars
+    shell: bash
+    run: echo "ONIGURUMA_CLONE=${WS}${SLASH}oniguruma" >> "$GITHUB_ENV"
+    env:
+      WS: ${{ github.workspace }}
+      SLASH: ${{ runner.os == 'Windows' && '\' || '/' }}
+  - uses: actions/cache@v3
+    id: oniguruma-cache
+    with:
+      key: ${{ runner.os }} | ${{ inputs.arch }} | ${{ hashFiles('bin/clone-oniguruma') }}
+      path: ${{ env.ONIGURUMA_CLONE }}
+  - name: build oniguruma (windows)
+    shell: cmd
+    run: |
+      bash bin\clone-oniguruma
+      call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ inputs.arch }}
+      cd %ONIGURUMA_CLONE%
+      make_win.bat
+    if: runner.os == 'Windows' && steps.oniguruma-cache.outputs.cache-hit != 'true'
+  - name: build oniguruma (macos)
+    shell: bash
+    run: |
+      set -x
+      brew install autoconf automake libtool
+      bin/clone-oniguruma
+      cd "$ONIGURUMA_CLONE"
+      ./autogen.sh
+      ./configure
+      make -j4
+    if: runner.os == 'macOS' && steps.oniguruma-cache.outputs.cache-hit != 'true'
+  - name: build oniguruma (linux)
+    shell: bash
+    run: |
+      set -x
+      bin/clone-oniguruma
+      cd "$ONIGURUMA_CLONE"
+      ./autogen.sh
+      ./configure
+      make -j4
+    if: runner.os == 'Linux' && steps.oniguruma-cache.outputs.cache-hit != 'true'
+  - name: install oniguruma (macos)
+    shell: bash
+    run: sudo make -C "$ONIGURUMA_CLONE" install
+    if: runner.os == 'macOS'
+  - name: install oniguruma (linux)
+    shell: bash
+    run: |
+      sudo make -C "$ONIGURUMA_CLONE" install
+      sudo ldconfig
+    if: runner.os == 'Linux'
