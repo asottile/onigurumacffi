@@ -4,12 +4,6 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: use tox 3
-    shell: bash
-    run: |
-      PIP_CONSTRAINT="${GITHUB_WORKSPACE}/../constraints.txt"
-      echo "PIP_CONSTRAINT=$PIP_CONSTRAINT" >> "$GITHUB_ENV"
-      echo 'tox<4' > "$PIP_CONSTRAINT"
   - name: setup vars
     shell: bash
     run: echo "ONIGURUMA_CLONE=${WS}${SLASH}oniguruma" >> "$GITHUB_ENV"
