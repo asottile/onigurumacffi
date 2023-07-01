@@ -156,12 +156,14 @@ ffibuilder = FFI()
 ffibuilder.cdef(CDEF)
 
 if sys.platform == 'win32':
+    here = os.path.dirname(__file__)
+    clone = os.environ.get('ONIGURUMA_CLONE', os.path.join(here, 'oniguruma'))
     ffibuilder.set_source(
         '_onigurumacffi', SRC,
         libraries=['onig_s'],
         define_macros=[('ONIG_EXTERN', 'extern')],
-        include_dirs=[os.path.join(os.environ['ONIGURUMA_CLONE'], 'src')],
-        library_dirs=[os.environ['ONIGURUMA_CLONE']],
+        include_dirs=[os.path.join(clone, 'src')],
+        library_dirs=[clone],
     )
 else:
     ffibuilder.set_source('_onigurumacffi', SRC, libraries=['onig'])
