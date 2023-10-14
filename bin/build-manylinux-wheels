@@ -27,7 +27,7 @@ def main() -> int:
     args = parser.parse_args()
 
     img = 'onigurumacffi-build'
-    base = 'quay.io/pypa/manylinux2010_x86_64'
+    base = 'quay.io/pypa/manylinux2014_x86_64'
 
     with open(os.path.join(os.path.dirname(__file__), 'clone-oniguruma')) as f:
         clone = ' && '.join(f.read().splitlines()[3:])
@@ -40,9 +40,10 @@ def main() -> int:
     os.makedirs('dist', exist_ok=True)
 
     for py_bin in (
-        '/opt/python/cp37-cp37m/bin',
-        '/opt/python/pp37-pypy37_pp73/bin',
+        '/opt/python/cp38-cp38/bin',
         '/opt/python/pp38-pypy38_pp73/bin',
+        '/opt/python/pp39-pypy39_pp73/bin',
+        '/opt/python/pp310-pypy310_pp73/bin',
     ):
         prog = PROG.format(py_bin=py_bin, version=args.version)
         if subprocess.call((
