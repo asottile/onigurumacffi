@@ -13,7 +13,7 @@ runs:
   - uses: actions/cache@v3
     id: oniguruma-cache
     with:
-      key: ${{ runner.os }} | ${{ inputs.arch }} | ${{ hashFiles('bin/clone-oniguruma') }}
+      key: ${{ runner.os }} | ${{ runner.arch }} | ${{ inputs.arch }} | ${{ hashFiles('bin/clone-oniguruma') }}
       path: ${{ env.ONIGURUMA_CLONE }}
   - name: build oniguruma (windows)
     shell: cmd
