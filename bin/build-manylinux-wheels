@@ -41,7 +41,6 @@ def main() -> int:
 
     for py_bin in (
         '/opt/python/cp39-cp39/bin',
-        '/opt/python/pp39-pypy39_pp73/bin',
         '/opt/python/pp310-pypy310_pp73/bin',
     ):
         prog = PROG.format(py_bin=py_bin, version=args.version)
