@@ -24,7 +24,7 @@ jobs:
     uses: asottile/workflows/.github/workflows/tox.yml@v1.8.1
     with:
       env: '["py310"]'
-      os: macos-13
+      os: macos-15-intel
       wheel-tags: true
   main-linux:
     uses: asottile/workflows/.github/workflows/tox.yml@v1.8.1
