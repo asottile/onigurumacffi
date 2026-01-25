@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import platform
 import sys
+import sysconfig
 
 from setuptools import setup
 
-if platform.python_implementation() == 'CPython':
+if (
+        platform.python_implementation() == 'CPython' and
+        sysconfig.get_config_var('Py_GIL_DISABLED') != 1
+):
     try:
         import wheel.bdist_wheel
     except ImportError:
