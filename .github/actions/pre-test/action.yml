@@ -19,7 +19,7 @@ runs:
     shell: cmd
     run: |
       bash bin\clone-oniguruma
-      call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ inputs.arch }}
+      call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ inputs.arch }}
       cd %ONIGURUMA_CLONE%
       make_win.bat
     if: runner.os == 'Windows' && steps.oniguruma-cache.outputs.cache-hit != 'true'
