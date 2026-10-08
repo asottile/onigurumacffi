@@ -40,8 +40,8 @@ def main() -> int:
     os.makedirs('dist', exist_ok=True)
 
     for py_bin in (
-        '/opt/python/cp39-cp39/bin',
-        '/opt/python/pp310-pypy310_pp73/bin',
+        '/opt/python/cp311-cp311/bin',
+        '/opt/python/pp311-pypy311_pp73/bin',
     ):
         prog = PROG.format(py_bin=py_bin, version=args.version)
         if subprocess.call((
